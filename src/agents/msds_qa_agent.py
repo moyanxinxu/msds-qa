@@ -13,8 +13,8 @@ from langgraph.types import Command
 
 from src.config import hp
 from src.core import ToolSet
-from src.model import GeminiClient, OllamaClient, SiliconflowClient
 from src.db import FaissDB
+from src.model import GeminiClient, OllamaClient, SiliconflowClient
 
 assert load_dotenv()
 client = GeminiClient()
