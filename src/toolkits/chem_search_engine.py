@@ -4,7 +4,7 @@ from typing import Union
 import requests
 from pydantic import BaseModel, Field
 
-from .funcs import parallel_map, GHSS
+from .funcs import GHSS, parallel_map
 
 
 class ChemicalsDataSearchEngine:
@@ -258,6 +258,9 @@ class ChemInfoModel(BaseModel):
     apperanceShape: str = Field(
         ..., description="外观与性状"
     )  # 接口字段为apperanceShape，非appearanceShape
+    recordList: Union[list[dict], dict[str, list]] = Field(
+        ..., description="化学品目录"
+    )
 
     @staticmethod
     def get_descriptions() -> list[str]:
@@ -301,6 +304,7 @@ class ChemInfoModel(BaseModel):
             "GHS警示词",
             "象形图",
             "外观与性状",
+            "化学品目录",
         ]
 
     def get_formated_info(self) -> dict[str, str]:
@@ -316,10 +320,24 @@ class ChemInfoModel(BaseModel):
 
         # 1. 替换换行和回车符为空格
         for description, value in zip(
-            self.get_descriptions(), self.model_dump().values()
+            self.get_descriptions(), list(self.model_dump().values())
         ):
-            value: str
-            dic[description] = value.strip().replace("\n", " ").replace("\r", " ")
+            if isinstance(value, str):
+                dic[description] = value.strip().replace("\n", " ").replace("\r", " ")
+            else:
+                dic[description] = value
+        in_records, not_in_records = [], []  # 在哪些目录、不在哪些目录
+
+        for record in dic["化学品目录"]:
+            if record["isExist"] == "1":
+                in_records.append(record["contentName"])
+            else:
+                not_in_records.append(record["contentName"])
+        dic["化学品目录"] = {
+            "该化学品在以下化学品目录中为危险化学品": in_records,
+            "该化学品在以下化学品目录中未被记录": not_in_records,
+        }
+
         # 2. 对象形图词进行中文描述转换
         dic["象形图"] = [
             GHSS.get(pictogram, pictogram) for pictogram in dic["象形图"].split(",")
