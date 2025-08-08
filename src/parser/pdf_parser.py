@@ -8,7 +8,6 @@ from langchain_community.document_loaders import PyPDFLoader
 from src.config import hp
 from src.toolkits import parallel_map
 
-
 # class PdfParser:
 #     def __init__(self, files: list[str]):
 #         self.loader = PyPDFLoader

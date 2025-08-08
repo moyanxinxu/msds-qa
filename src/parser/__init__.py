@@ -1,2 +1,2 @@
-from .file_checker import FileChecker
+from .file_tool import FileChecker
 from .pdf_parser import MsdsParser
