@@ -31,10 +31,7 @@ class FileChecker:
 
         :return: 如果文件后缀有效，返回 True，否则返回 False
         """
-        if self.get_suffix(file_path) in suffix:
-            return True
-        else:
-            return False
+        return self.get_suffix(file_path) in suffix
 
     def is_prefix_valid(self, file_path: str, prefix: str) -> bool: ...
 
@@ -42,7 +39,7 @@ class FileChecker:
         suffix2processor = {
             ".pdf": PyPDFLoader,
             ".docx": Docx2txtLoader,
-            "doc": Docx2txtLoader,
+            ".doc": Docx2txtLoader,
         }
 
         return (
@@ -61,10 +58,8 @@ class FileChecker:
         """
         if not os.path.exists(file_path):
             return False
-        if self.is_suffix_valid(file_path, self.supported_suffixes):
-            return True
         else:
-            return False
+            return self.is_suffix_valid(file_path, self.supported_suffixes)
 
 
 class FileProcessorTool:
