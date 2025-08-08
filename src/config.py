@@ -7,7 +7,10 @@ assert load_dotenv("/root/Documents/msds-qa/.env")
 @dataclass
 class hp:
     ollama_host: str = "http://192.168.215.3:11434"
-    ollama_chat_model: str = "qwen3:0.6b"
+    # ollama_chat_model: str = "qwen3:0.6b"
+    # ollama_chat_model: str = "gemma3:1b"
+    ollama_chat_model: str = "qwen3:1.7b"
+
     ollama_embedding_model: str = "nomic-embed-text:latest"
 
     siliconflow_base_url: str = "https://api.siliconflow.cn/v1"

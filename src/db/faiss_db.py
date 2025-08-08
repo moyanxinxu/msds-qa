@@ -7,6 +7,7 @@ from langchain.schema import Document
 from langchain_community.vectorstores import FAISS
 from langchain_core.embeddings import Embeddings
 from langchain_core.vectorstores.base import VectorStoreRetriever
+from tqdm import trange
 
 from src.config import hp
 from src.toolkits import check_db_exists, parallel_map
@@ -31,14 +32,16 @@ class FaissDB:
     def create_db(self, documents: list[Document]) -> FAISS:
         """创建FAISS数据库"""
         try:
-            for idx in range(0, len(documents), hp.max_batch_size):
-                if idx == 0:
-                    db = FAISS.from_documents(
-                        documents[idx : idx + hp.max_batch_size], self.embed_model
-                    )
-                else:
-                    db.add_documents(documents[idx : idx + hp.max_batch_size])
-            db.save_local(self.db_path)
+            db = FAISS.from_documents(documents[: hp.max_batch_size], self.embed_model)
+
+            for idx in trange(
+                hp.max_batch_size,
+                len(documents),
+                hp.max_batch_size,
+                colour="green",
+            ):
+                db.add_documents(documents[idx : idx + hp.max_batch_size])
+                db.save_local(self.db_path)
 
             os.makedirs(os.path.join(self.db_path, "files"), exist_ok=True)
 
@@ -46,7 +49,7 @@ class FaissDB:
                 lambda file: shutil.copy(
                     file, os.path.join(self.db_path, "files", os.path.basename(file))
                 ),
-                set([doc.metadata["source"] for doc in documents]),
+                list(set(doc.metadata["source"] for doc in documents)),
                 max_workers=10,
                 enable_tqdm=True,
             )
@@ -98,7 +101,7 @@ class FaissDB:
         """将文档添加到FAISS数据库"""
         try:
             self.db.add_documents(documents)
-            self.save_db(self.db)
+            self.save_db(self.db_path)
         except Exception:
             raise ValueError("无法将文档向量化并添加到FAISS数据库")
 

@@ -96,9 +96,9 @@ def parallel_map(
 
 def get_files_from_kb_space(kb_path: str) -> list[str]:
     """
-    获取指定路径下的所有PDF文件
+    获取指定路径下的所有文件
 
-    :param kb_path: 存储MSDS的知识库路径
+    :param kb_path: 知识库路径
 
     :return: 知识文件列表
     """
