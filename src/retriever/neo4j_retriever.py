@@ -1,5 +1,4 @@
 from typing import Optional, Type
-
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,
     CallbackManagerForToolRun,

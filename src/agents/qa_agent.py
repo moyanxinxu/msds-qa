@@ -15,6 +15,7 @@ from src.config import hp
 from src.core import ToolSet
 from src.db import FaissDB
 from src.model import GeminiClient, OllamaClient
+import logging
 
 assert load_dotenv()
 
@@ -55,6 +56,9 @@ async def chat_node(
     ):
         state["chem_info"] = json.loads(state["messages"][-1].content)
     if isinstance(response, AIMessage) and response.tool_calls:
+        name = response.tool_calls[-1]["name"]
+        args = response.tool_calls[-1]["args"]
+        logging.info(f"正在调用{name}工具，参数args为{args}")
         return Command(goto="tool_node", update={"messages": response})
     return Command(goto=END, update={"messages": response})
 
