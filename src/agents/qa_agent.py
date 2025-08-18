@@ -1,6 +1,6 @@
 import json
 from typing import Literal
-
+import asyncio
 from copilotkit import CopilotKitState
 from copilotkit.langgraph import copilotkit_emit_state
 from dotenv import load_dotenv
@@ -10,15 +10,17 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import ToolNode
 from langgraph.types import Command
-
+from colorama import Fore
 from src.config import hp
 from src.core import ToolSet
 from src.db import FaissDB
-from src.model import OllamaClient
+from src.model import GeminiClient, OllamaClient
 
 assert load_dotenv()
 
+# chat_model = GeminiClient().get_chat_model()
 chat_model = OllamaClient().get_chat_model()
+
 
 tools = [
     ToolSet.get_nrcc_chem_info_tool(),
@@ -65,3 +67,21 @@ app.set_entry_point("chat_node")
 
 checkpointer = MemorySaver()
 graph = app.compile(checkpointer=checkpointer)
+
+if __name__ == "__main__":
+
+    async def main():
+        out = await graph.ainvoke(
+            {
+                "messages": [
+                    {
+                        "role": "human",
+                        "content": "甜菜碱工艺的工艺原理是什么？",
+                    },
+                ]
+            },
+            config={"configurable": {"thread_id": 42}},
+        )
+        print(Fore.GREEN + out["messages"][-1].content)
+
+    asyncio.run(main())

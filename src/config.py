@@ -9,7 +9,8 @@ class hp:
     ollama_host: str = "http://192.168.215.3:11434"
     # ollama_chat_model: str = "qwen3:0.6b"
     # ollama_chat_model: str = "gemma3:1b"
-    ollama_chat_model: str = "qwen3:1.7b"
+    # ollama_chat_model: str = "qwen3:1.7b"
+    ollama_chat_model: str = "qwen2.5:3b"
 
     ollama_embedding_model: str = "nomic-embed-text:latest"
 
