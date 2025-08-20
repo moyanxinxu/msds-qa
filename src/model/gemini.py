@@ -1,6 +1,7 @@
 import os
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from pydantic import SecretStr
 
 from src.config import hp
 
@@ -15,7 +16,7 @@ class GeminiClient:
         chat_model = ChatOpenAI(
             model=chat_model_name,
             base_url=self.base_url,
-            api_key=os.getenv("GOOGLE_API_KEY"),
+            api_key=SecretStr(os.getenv("GOOGLE_API_KEY", "None")),
         )
         return chat_model
 
@@ -25,6 +26,6 @@ class GeminiClient:
         embed_model = OpenAIEmbeddings(
             model=embed_model_name,
             base_url=self.base_url,
-            api_key=os.getenv("GOOGLE_API_KEY"),
+            api_key=SecretStr(os.getenv("GOOGLE_API_KEY", "None")),
         )
         return embed_model

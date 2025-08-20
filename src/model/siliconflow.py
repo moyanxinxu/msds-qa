@@ -1,6 +1,7 @@
 import os
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from pydantic import SecretStr
 
 from src.config import hp
 
@@ -17,7 +18,7 @@ class SiliconflowClient:
         chat_model = ChatOpenAI(
             model=chat_model_name,
             base_url=self.base_url,
-            api_key=os.getenv("SILICONFLOW_API_KEY"),
+            api_key=SecretStr(os.getenv("SILICONFLOW_API_KEY", "None")),
         )
         return chat_model
 
@@ -27,6 +28,6 @@ class SiliconflowClient:
         embed_model = OpenAIEmbeddings(
             model=embed_model_name,
             base_url=self.base_url,
-            api_key=os.getenv("SILICONFLOW_API_KEY"),
+            api_key=SecretStr(os.getenv("SILICONFLOW_API_KEY", "None")),
         )
         return embed_model

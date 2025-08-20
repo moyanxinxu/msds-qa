@@ -11,11 +11,7 @@ class ToolSet:
         pass
 
     @staticmethod
-    def get_faiss_retriever_tool(
-        db: VectorStore,
-        name: str,
-        description: str,
-    ) -> Tool:
+    def get_faiss_retriever_tool(db: VectorStore, name: str, description: str) -> Tool:
         """创建一个检索工具"""
         retriever = db.as_retriever(
             search_type="similarity_score_threshold",
@@ -41,9 +37,3 @@ class ToolSet:
     def get_nrcc_chem_info_tool() -> BaseTool:
         """nrcc化学品信息检索工具"""
         return ChemInfoRetriever()
-
-
-if __name__ == "__main__":
-    search_tool: BaseTool = ToolSet.get_nrcc_chem_info_tool()
-
-    print(search_tool.invoke({"chem_name": "甲苯"}))
