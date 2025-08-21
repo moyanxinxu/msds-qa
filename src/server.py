@@ -6,15 +6,19 @@ from copilotkit.integrations.fastapi import add_fastapi_endpoint
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
+from src.agents import msds_qa_graph
 from src.agents.predictive_state_updates import graph as predictive_state_updates_graph
-from src.agents.qa_agent import graph as qa_agent_graph
 
 assert load_dotenv()
 
 app = FastAPI()
 sdk = CopilotKitRemoteEndpoint(
     agents=[
-        LangGraphAgent(name="qa-agent", description="qa-agent", graph=qa_agent_graph),
+        LangGraphAgent(
+            name="msds-qa-agent",
+            description="msds-qa-agent",
+            graph=msds_qa_graph,
+        ),
         LangGraphAgent(
             name="predictive_state_updates",
             description="predictive_state_updates",

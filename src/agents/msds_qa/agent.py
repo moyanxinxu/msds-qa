@@ -1,14 +1,17 @@
 from uuid import uuid4
 
+from copilotkit.langgraph import copilotkit_customize_config, copilotkit_emit_state
 from dotenv import load_dotenv
-from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+from langchain_core.messages import AIMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Send
-
+from langgraph.prebuilt import ToolNode
 from src.agents.msds_qa.prompts import isNeedQueryMsds
 from src.agents.msds_qa.states_tools_schemas import (
+    InputState,
+    OutputState,
     chemNrcc,
     chemsNrcc,
     isNeedSearchNrccModel,
@@ -23,9 +26,11 @@ chat_model = client.get_chat_model()
 
 
 def is_need_query_nrcc(state: msdsOverallState, config: RunnableConfig) -> chemsNrcc:
+    config = copilotkit_customize_config(config, emit_messages=False)
     llm = chat_model.with_structured_output(isNeedSearchNrccModel)
     formatted_prompt = isNeedQueryMsds.format(query=state["messages"][-1].content)
-    result = llm.invoke(formatted_prompt)
+    result = llm.invoke(formatted_prompt, config=config)
+
     return {"is_need": result.is_need, "chems": result.chems}
 
 
@@ -41,35 +46,34 @@ def continue_to_query_nrcc(state: chemsNrcc, config: RunnableConfig):
 
 
 def search_at_nrcc(state: chemNrcc, config: RunnableConfig):
-    nrcc_search_engine = ToolSet.get_nrcc_chem_info_tool()
-
+    nrcc_search_engine = ToolNode([ToolSet.get_nrcc_chem_info_tool()])
     chem_name = {"chem_name": state["chem"]}
-    chem_info = nrcc_search_engine.invoke(chem_name)
 
-    id_uuid = str(uuid4())
+    id_uuid = uuid4()
     tool_call = {
-        "name": "ChemInfoRetriver",
+        "name": "ChemInfoRetriever",
         "args": chem_name,
-        "id": id_uuid,
+        "id": str(id_uuid),
         "type": "tool_call",
     }
 
-    ai_message = AIMessage(content="", tool_calls=[tool_call])
-    tool_message = ToolMessage(content=chem_info, tool_call_id=id_uuid)
+    ai_message = [AIMessage(content="", tool_calls=[tool_call])]
+    tool_message = nrcc_search_engine.invoke({"messages": ai_message})
 
-    return {"chem_infos": [chem_info], "messages": [ai_message, tool_message]}
+    messages = ai_message + tool_message["messages"]
+
+    return {"messages": messages}
 
 
 def finalize_answer(state: msdsOverallState, config: RunnableConfig):
-    chem_infos = state.get("chem_infos", [])
+    # chem_infos = state.get("chem_infos", [])
     messages = state.get("messages", [])
-
     result = chat_model.invoke(messages)
 
     return {"messages": result}
 
 
-builder = StateGraph(msdsOverallState)
+builder = StateGraph(msdsOverallState, input=InputState, output=OutputState)
 
 builder.add_node("is_need_query_nrcc", is_need_query_nrcc)
 builder.add_node("search_at_nrcc", search_at_nrcc)

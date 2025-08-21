@@ -1,14 +1,23 @@
 import operator
 from typing import Annotated, TypedDict
 
+from copilotkit import CopilotKitState
 from langgraph.graph import add_messages
 from pydantic import BaseModel, Field
 
 
-class msdsOverallState(TypedDict):
-    messages: Annotated[list, add_messages]
-    chem_infos: Annotated[list, operator.add]
+class InputState(CopilotKitState):
+    query: Annotated[str, add_messages]
 
+
+class OutputState(CopilotKitState):
+    messages: Annotated[list, add_messages]
+
+
+class msdsOverallState(InputState, OutputState):
+    # messages: Annotated[list, add_messages]
+    chem_infos: Annotated[list, operator.add]
+    current_chem_infos: list[str]
 
 class isNeedSearchNrccModel(BaseModel):
     is_need: bool = Field(description="是否需要查询NRCC数据库")
