@@ -1,6 +1,5 @@
-from typing import Type
+from typing import Type, Union
 
-from langchain_core.messages import ToolMessage
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field
 
@@ -20,7 +19,7 @@ class ChemInfoRetriever(BaseTool):
     search_engine: ChemicalsDataSearchEngine = ChemicalsDataSearchEngine()
     args_schema: Type[BaseModel] = ChemInfoQuery
 
-    def _run(self, chem_name: str) -> ToolMessage:
+    def _run(self, chem_name: str) -> Union[dict, None]:
         """执行化学品信息查询"""
         chem_id = self.search_engine.get_idenDataId(chem_name)
 
