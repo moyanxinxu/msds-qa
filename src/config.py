@@ -35,3 +35,6 @@ class hp:
     neo4j_password: str = "password"
 
     max_retry: int = 1
+
+    searx_host: str = "192.168.215.3:8080"
+    searx_num_results: int = 5

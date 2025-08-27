@@ -5,12 +5,9 @@ A demo of predictive state updates using LangGraph.
 import uuid
 from typing import Optional
 
-# CopilotKit imports
 from copilotkit import CopilotKitState
 from copilotkit.langgraph import copilotkit_customize_config, copilotkit_exit
 from langchain_core.messages import SystemMessage
-
-# LangGraph imports
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
