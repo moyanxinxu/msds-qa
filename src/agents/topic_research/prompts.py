@@ -37,19 +37,37 @@ generate_planning_instruction = """
 
 格式：
 {{
-    'title': "文档主标题",
-    'summary': "文档的核心内容概述",
-    'sections': [
-        {{'idx':1, "heading": "第一级标题", "content": "第一级标题的核心内容", "purpose": "开头与该部分的作用或目标", 'relation':'与前一部分的逻辑关系'}},
-        {{'idx':2, "heading": "某级标题", "content": "某级标题的核心内容", "purpose": "该部分的作用或目标", 'relation':'与前一部分的逻辑关系'}},
-        ...
-        {{'idx':n, "heading": "某级标题", "content": "某级标题的核心内容", "purpose": "结尾与该部分的作用或目标", 'relation':'与前一部分的逻辑关系'}}
+    "title": "文档主标题",
+    "summary": "文档的核心内容概述",
+    "sections": [
+        {{
+            "idx": 1,
+            "heading": "第一级标题",
+            "content": "该部分的核心内容",
+            "purpose": "该部分的作用或目标",
+            "relation": "与前一部分的逻辑关系"
+        }},
+        {{
+            "idx": 2,
+            "heading": "某级标题",
+            "content": "该部分的核心内容",
+            "purpose": "该部分的作用或目标",
+            "relation": "与前一部分的逻辑关系"
+        }},
+        {{
+            "idx": n,
+            "heading": "某级标题",
+            "content": "该部分的核心内容",
+            "purpose": "结尾与该部分的作用或目标",
+            "relation": "与前一部分的逻辑关系"
+        }}
     ]
-
 }}
 
 其中heading字段的取值局限于['第一级标题', '第二级标题', '第三级标题', '第四级标题']
+只有一个第一节标题！！
 
+写作主题为：{research_topic}
 上下文: {web_answers}
 """
 
@@ -57,9 +75,9 @@ generate_section_instruction = """
 你是一个专业的写作专家，请根据以下要求，为一篇完整文档的某个部分进行内容撰写。
 
 说明：
-- 整体文档主题是{title}
-- 文章摘要是: {summary}
-- 你需要围绕着子段落{current_heading}及其对应的部分{current_content}展开书写。
+- 整体文档主题是：{title}
+- 你所负责的目的是: {purpose}
+- 你需要围绕{content}展开书写。
 
 格式：
 - 将你的回答格式化为一个 JSON 对象，且必须包含以下两个键：
@@ -68,13 +86,15 @@ generate_section_instruction = """
 """
 
 generate_page_instruction = """
-你的任务为分散开的内容进行整合，形成连贯的章节内容。
+你的任务是将分散的片段内容整合为一篇连贯的章节内容。
 
-说明：
-- 需要整理的文档为：{section_contents}
-
-格式：
-- 将你的回答格式化为一个 JSON 对象，且必须包含以下两个键：
-   - "rationale": 尽可能简要地说明为什么这样整理。
-   - "final_answer": 里面存储最终的文章内容。
+要求：
+1. 输入的文档内容为：{section_contents}。
+2. 输出必须为 **JSON 对象**，且包含以下两个键：
+   - "rationale"：简要说明你的整理思路和原因。
+   - "final_answer"：存储最终的文章内容，格式必须为 **Markdown**。
+3. 在 "final_answer" 中：
+   - 使用恰当的 Markdown 标记（#、##、###、*、**、表格、引用等）组织结构。
+   - 确保内容连贯、层次清晰，必要时合并相似点，避免重复。
+   - 注意段落之间的逻辑衔接，提升整体可读性。
 """
