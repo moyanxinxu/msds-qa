@@ -14,8 +14,12 @@ class OutputState(CopilotKitState):
     messages: Annotated[list, add_messages]
 
 
-class msdsOverallState(InputState, OutputState):
-    pass
+class OverallState(TypedDict):
+    messages: Annotated[list, add_messages]
+    is_need: bool
+    rationale: str
+    chems: list[str]
+    chem: str
 
 
 class isNeedSearchNrccInputModel(BaseModel):
